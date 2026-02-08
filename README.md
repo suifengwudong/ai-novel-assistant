@@ -73,6 +73,16 @@ npm install
 npm run dev
 ```
 
+### 方式三：使用启动脚本（推荐）
+
+```bash
+# Windows用户
+start-frontend.bat
+
+# Linux/Mac用户
+bash start-frontend.sh
+```
+
 详细部署文档：[docs/deployment.md](docs/deployment.md)
 
 ---
