@@ -1,10 +1,15 @@
-# AI Novel Assistant - 基于智能体的小说创作助手
+# 🎨 AI Novel Assistant - 基于智能体的小说创作助手
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com)
+[![Vue 3](https://img.shields.io/badge/Vue-3.0+-brightgreen.svg)](https://vuejs.org)
 
 > 专为百万、千万字级超长篇小说创作设计的智能辅助系统，基于大语言模型和智能体技术，提供「内容管理+结构管理」双核心支撑。
+
+[English](#english) | [中文](#chinese)
+
+---
 
 ## ✨ 核心特性
 
@@ -30,21 +35,23 @@
 - 大纲规划、节奏把控
 - 文字润色、逻辑校验
 
+---
+
 ## 🚀 快速开始
 
 ### 方式一：Docker 一键部署（推荐）
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/yourusername/ai-novel-assistant.git
+git clone https://github.com/suifengwudong/ai-novel-assistant.git
 cd ai-novel-assistant
 
 # 2. 配置API密钥
 cp .env.example .env
-# 编辑 .env ，填入你的大模型API密钥
+# 编辑 .env，填入你的大模型API密钥
 
 # 3. 启动服务
-docker-compose up -d
+bash scripts/deploy.sh
 
 # 4. 访问系统
 # 前端: http://localhost:3000
@@ -57,13 +64,18 @@ docker-compose up -d
 # 后端
 cd backend
 pip install -r requirements.txt
-python main.py
+python scripts/init_db.py
+uvicorn main:app --reload
 
 # 前端
 cd frontend
 npm install
 npm run dev
 ```
+
+详细部署文档：[docs/deployment.md](docs/deployment.md)
+
+---
 
 ## 📖 系统架构
 
@@ -72,7 +84,7 @@ npm run dev
          ↓
    API服务层 (FastAPI)
          ↓
- 智能体编排层 (LangGraph)
+智能体编排层 (LangGraph)
          ↓
 ┌────────┬────────┬────────┬────────┐
 │ 长文本 │ 逻辑   │ 风格   │ 知识   │
@@ -83,6 +95,10 @@ npm run dev
          ↓
 大模型接入层 (OpenAI/Claude/Qwen/Ollama)
 ```
+
+详细架构文档：[docs/architecture.md](docs/architecture.md)
+
+---
 
 ## 🛠️ 技术栈
 
@@ -97,24 +113,29 @@ npm run dev
 | 缓存 | Redis |
 | 大模型接入 | LiteLLM (支持多模型) |
 
+---
+
 ## 📚 文档
 
 - [部署指南](docs/deployment.md) - 详细的安装和部署步骤
 - [开发文档](docs/development.md) - 二次开发指南
 - [API文档](docs/api.md) - RESTful API接口说明
 - [架构设计](docs/architecture.md) - 系统架构详解
+- [贡献指南](CONTRIBUTING.md) - 如何参与项目
+
+---
 
 ## 🎯 开发路线图
 
-### ✅ Phase 1: MVP核心
+### ✅ Phase 1: MVP核心 (完成)
 - [x] 基础架构搭建
 - [x] 大模型接入
 - [x] 三级总结系统
 - [x] 章节生成功能
 
-### 🚧 Phase 2: 长文本突破
-- [ ] 向量检索系统
-- [ ] 知识图谱
+### 🚧 Phase 2: 长文本突破 (进行中)
+- [x] 向量检索系统
+- [x] 知识图谱
 - [ ] 断点续创
 - [ ] 逻辑校验引擎
 
@@ -124,13 +145,24 @@ npm run dev
 - [ ] 润色优化功能
 - [ ] 读者反馈模拟
 
+### 🔮 Phase 4: 优化迭代
+- [ ] 百万字级性能优化
+- [ ] 多端同步
+- [ ] 高级分析功能
+- [ ] 插件系统
+
+---
+
 ## 🤝 贡献
 
 我们欢迎所有形式的贡献！
 
-- 🐛 报告Bug：[提交Issue](https://github.com/yourusername/ai-novel-assistant/issues)
-- 💡 功能建议：[讨论区](https://github.com/yourusername/ai-novel-assistant/discussions)
+- 🐛 报告Bug：[提交Issue](https://github.com/suifengwudong/ai-novel-assistant/issues)
+- 💡 功能建议：[讨论区](https://github.com/suifengwudong/ai-novel-assistant/discussions)
 - 🔧 代码贡献：查看 [贡献指南](CONTRIBUTING.md)
+- 📖 文档改进：直接提交PR
+
+---
 
 ## 📄 开源协议
 
@@ -139,6 +171,8 @@ npm run dev
 - ✅ 可自由使用、修改、分发
 - ✅ 可用于商业用途
 - ⚠️ 需保留原作者版权声明
+
+---
 
 ## 🙏 致谢
 
@@ -150,4 +184,19 @@ npm run dev
 
 ---
 
-Made with ❤️ for writers
+## 📧 联系方式
+
+- GitHub Issues: [提问/反馈](https://github.com/suifengwudong/ai-novel-assistant/issues)
+- Discussions: [社区讨论](https://github.com/suifengwudong/ai-novel-assistant/discussions)
+
+---
+
+## ⭐ Star History
+
+如果这个项目对你有帮助，请给我们一个 Star ⭐️
+
+[![Star History Chart](https://api.star-history.com/svg?repos=suifengwudong/ai-novel-assistant&type=Date)](https://star-history.com/#suifengwudong/ai-novel-assistant&Date)
+
+---
+
+<p align="center">Made with ❤️ for writers</p>
