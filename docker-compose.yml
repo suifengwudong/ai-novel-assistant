@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  backend:
+    build: ./backend
+    container_name: novel-assistant-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+      - ./config:/app/config
+    environment:
+      - DATABASE_URL=sqlite:////data/novel_assistant.db
+      - VECTOR_STORE_PATH=/data/vector_store
+      - REDIS_URL=redis://redis:6379/0
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4}
+      - LLM_BASE_URL=${LLM_BASE_URL:-}
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - novel-net
+
+  # 前端服务
+  frontend:
+    build: ./frontend
+    container_name: novel-assistant-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - novel-net
+
+  # Redis缓存服务（用于即时信息存储）
+  redis:
+    image: redis:7-alpine
+    container_name: novel-assistant-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - novel-net
+
+networks:
+  novel-net:
+    driver: bridge
+
+volumes:
+  data:
+  redis-data:
