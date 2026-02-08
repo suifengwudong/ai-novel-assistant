@@ -6,7 +6,7 @@ import json
 import re
 from typing import List, Dict, Optional
 from loguru import logger
-from backend.core.structure.models import PlotLoop, NovelProject, PlotNode
+from core.structure.models import PlotLoop, NovelProject, PlotNode
 
 class LoopTracker:
     """

@@ -5,7 +5,7 @@
 import json
 from typing import Dict, Any, Optional
 from loguru import logger
-from backend.core.structure.models import PlotNode, NodeStatus
+from core.structure.models import PlotNode, NodeStatus
 
 class OutlineGuardian:
     """

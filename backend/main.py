@@ -10,20 +10,29 @@ import uvicorn
 from loguru import logger
 
 from config.settings import settings
+# 导入 v1 路由
+from api.v1.api import api_router
 
 # 应用生命周期管理
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用启动和关闭时的处理"""
     # 启动时初始化
-    logger.info("🚀 Starting AI Novel Assistant...")
-    logger.info(f"Environment: {settings.ENVIRONMENT}")
-    logger.info(f"LLM Provider: {settings.LLM_PROVIDER}")
+    try:
+        logger.info("🚀 Starting AI Novel Assistant...")
+        logger.info(f"Environment: {settings.app_env}")
+        logger.info(f"LLM Provider: {settings.provider}")
+    except Exception as e:
+        logger.error(f"Error during startup: {e}")
+        raise
     
     yield
     
     # 关闭时清理
-    logger.info("👋 Shutting down AI Novel Assistant...")
+    try:
+        logger.info("👋 Shutting down AI Novel Assistant...")
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}")
 
 
 # 创建FastAPI应用
@@ -39,11 +48,14 @@ app = FastAPI(
 # CORS中间件配置
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 挂载 API 路由
+app.include_router(api_router, prefix="/api/v1")
 
 
 # ========================================
@@ -107,7 +119,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=settings.API_PORT,
-        reload=settings.ENVIRONMENT == "development",
-        log_level=settings.LOG_LEVEL.lower()
+        port=settings.api_port,
+        reload=settings.app_env == "development",
+        log_level=settings.log_level.lower()
     )

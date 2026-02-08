@@ -6,7 +6,7 @@ import json
 import statistics
 from typing import Dict, Any, List, Tuple
 from loguru import logger
-from backend.core.structure.models import NovelProject, PlotNode, PacingTemplate, PacingCheckpoint
+from core.structure.models import NovelProject, PlotNode, PacingTemplate, PacingCheckpoint
 
 class PacingAnalyzer:
     """
