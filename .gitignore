@@ -127,8 +127,7 @@ dmypy.json
 .github/
 .idea/
 *.swp
-*.swo
-*~
+*.swo*~
 .DS_Store
 
 # Data directories
