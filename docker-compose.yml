@@ -55,8 +55,4 @@ networks:
 
 volumes:
   data:
-<<<<<<< HEAD
   redis-data:
-=======
-  redis-data:
->>>>>>> d3a5fa1dbaf55c323896ddc761a3b163489aeaa8
