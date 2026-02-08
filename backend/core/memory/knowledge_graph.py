@@ -3,7 +3,7 @@
 用于管理实体间的关系 (Entity-Relation-Entity)
 """
 import json
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 from loguru import logger
 
@@ -55,7 +55,7 @@ class KnowledgeGraph:
         except Exception as e:
             logger.error(f"Failed to add relation: {e}")
 
-    async def get_related_entities(self, entity_name: str, relation_type: str = None) -> List[Relation]:
+    async def get_related_entities(self, entity_name: str, relation_type: Optional[str] = None) -> List[Relation]:
         """查询相关实体"""
         query = "SELECT source, target, relation, description FROM entity_relations WHERE source = ? OR target = ?"
         params = [entity_name, entity_name]
