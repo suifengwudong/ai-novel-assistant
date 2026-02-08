@@ -77,10 +77,10 @@ npm run dev
 
 ```bash
 # Windows用户
-start-frontend.bat
+test/start-frontend.bat
 
 # Linux/Mac用户
-bash start-frontend.sh
+bash test/start-frontend.sh
 ```
 
 详细部署文档：[docs/deployment.md](docs/deployment.md)
