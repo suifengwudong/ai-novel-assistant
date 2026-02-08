@@ -73,6 +73,30 @@ npm install
 npm run dev
 ```
 
+### 方式二：一键启动完整系统（推荐）
+
+```bash
+# 一键启动前后端服务
+test/start-all.bat
+```
+
+**启动内容**:
+- ✅ 自动环境检查
+- ✅ 依赖自动安装
+- ✅ 数据库初始化
+- ✅ 后端API服务 (http://localhost:8000)
+- ✅ 前端开发服务器 (http://localhost:3000)
+
+### 方式三：分别启动服务
+
+```bash
+# 仅启动前端
+test/start-frontend.bat
+
+# 后端需要单独启动
+cd backend && python main.py
+```
+
 详细部署文档：[docs/deployment.md](docs/deployment.md)
 
 ---

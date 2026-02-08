@@ -2,6 +2,8 @@
 智能体编排系统
 使用LangGraph实现多Agent协作
 """
+import pickle
+import os
 from typing import TypedDict, Annotated, List, Dict, Any, Optional
 from dataclasses import dataclass
 import operator
@@ -54,6 +56,32 @@ class NovelAssistantOrchestrator:
             self.workflow = None
             logger.warning("Using fallback workflow without LangGraph")
     
+    async def save_checkpoint(self, state: AgentState, checkpoint_id: str):
+        """保存当前执行状态"""
+        path = f"./data/checkpoints/{checkpoint_id}.pkl"
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        try:
+            with open(path, "wb") as f:
+                pickle.dump(state, f)
+            logger.info(f"Checkpoint saved: {checkpoint_id}")
+        except Exception as e:
+            logger.error(f"Failed to save checkpoint {checkpoint_id}: {e}")
+
+    async def load_checkpoint(self, checkpoint_id: str) -> Optional[AgentState]:
+        """加载执行状态"""
+        path = f"./data/checkpoints/{checkpoint_id}.pkl"
+        if not os.path.exists(path):
+            logger.warning(f"Checkpoint not found: {checkpoint_id}")
+            return None
+        try:
+            with open(path, "rb") as f:
+                state = pickle.load(f)
+            logger.info(f"Checkpoint loaded: {checkpoint_id}")
+            return state
+        except Exception as e:
+            logger.error(f"Failed to load checkpoint {checkpoint_id}: {e}")
+            return None
+    
     def _build_workflow(self):
         """构建智能体工作流"""
         workflow = StateGraph(AgentState)
@@ -84,12 +112,13 @@ class NovelAssistantOrchestrator:
         
         return workflow.compile()
     
-    async def process(self, user_input: str, **kwargs) -> Dict[str, Any]:
+    async def process(self, user_input: str, resume_from: str = None, **kwargs) -> Dict[str, Any]:
         """
         处理用户请求
         
         Args:
             user_input: 用户输入
+            resume_from: 检查点ID，用于恢复之前的执行状态
             **kwargs: 其他参数
             
         Returns:
@@ -97,19 +126,33 @@ class NovelAssistantOrchestrator:
         """
         logger.info(f"开始处理请求: {user_input[:100]}...")
         
-        # 初始化状态
-        state: AgentState = {
-            "user_input": user_input,
-            "task_type": "",
-            "context": [],
-            "core_knowledge": [],
-            "summaries": {},
-            "output": "",
-            "locked_settings": kwargs.get("locked_settings", {}),
-            "validation_result": None,
-            "metadata": kwargs,
-            "messages": []
-        }
+        # 1. 尝试恢复状态
+        if resume_from:
+            state = await self.load_checkpoint(resume_from)
+            if state:
+                logger.info(f"Resuming from checkpoint: {resume_from}")
+                # 更新用户输入（如果提供了新的输入）
+                if user_input:
+                    state["user_input"] = user_input
+                    state["metadata"].update(kwargs)
+            else:
+                logger.warning("Checkpoint not found, starting fresh.")
+                state = None
+        
+        # 2. 如果没有恢复状态，初始化新状态
+        if not state:
+            state: AgentState = {
+                "user_input": user_input,
+                "task_type": "",
+                "context": [],
+                "core_knowledge": [],
+                "summaries": {},
+                "output": "",
+                "locked_settings": kwargs.get("locked_settings", {}),
+                "validation_result": None,
+                "metadata": kwargs,
+                "messages": []
+            }
         
         if self.workflow:
             # 使用LangGraph工作流
@@ -123,13 +166,23 @@ class NovelAssistantOrchestrator:
     
     async def _fallback_process(self, state: AgentState) -> AgentState:
         """降级处理方案（不使用LangGraph）"""
+        task_id = state["metadata"].get("task_id", "unknown")
+        
         state = await self._understand_intent(state)
+        await self.save_checkpoint(state, f"{task_id}_intent_understood")
+        
         state = await self._retrieve_context(state)
+        await self.save_checkpoint(state, f"{task_id}_context_retrieved")
+        
         state = await self._generate_content(state)
+        await self.save_checkpoint(state, f"{task_id}_content_generated")
+        
         state = await self._validate_output(state)
+        await self.save_checkpoint(state, f"{task_id}_output_validated")
         
         if self._should_refine(state) == "refine":
             state = await self._refine_output(state)
+            await self.save_checkpoint(state, f"{task_id}_output_refined")
         
         return state
     
@@ -153,9 +206,15 @@ class NovelAssistantOrchestrator:
 """
         
         try:
-            result = await self.llm.generate(prompt, format="json")
+            result = await self.llm.generate(prompt)  # Remove format="json" for Ollama compatibility
             import json
-            parsed = json.loads(result)
+            # Try to parse as JSON, fallback to default if parsing fails
+            try:
+                parsed = json.loads(result)
+            except json.JSONDecodeError:
+                # If JSON parsing fails, extract information manually or use defaults
+                logger.warning("Failed to parse LLM response as JSON, using defaults")
+                parsed = {"task_type": "generate"}
             
             state["task_type"] = parsed.get("task_type", "generate")
             state["metadata"].update(parsed)
