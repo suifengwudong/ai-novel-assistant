@@ -19,16 +19,28 @@ async def test_knowledge_graph():
         def __init__(self):
             self.relations = []
 
-        async def insert_relation(self, source, target, relation, description):
-            self.relations.append({
-                'source': source,
-                'target': target,
-                'relation': relation,
-                'description': description
-            })
+        def execute(self, query, params=None):
+            """模拟数据库执行"""
+            if "INSERT INTO entity_relations" in query and params:
+                self.relations.append({
+                    'id': len(self.relations) + 1,
+                    'source': params[0],
+                    'target': params[1],
+                    'relation': params[2],
+                    'description': params[3],
+                    'created_at': '2024-01-01'
+                })
 
-        async def query_relations(self, entity_name):
-            return [r for r in self.relations if r['source'] == entity_name or r['target'] == entity_name]
+        def fetchall(self, query, params=None):
+            """模拟数据库查询"""
+            if "SELECT" in query and "entity_relations" in query and params:
+                entity_name = params[0]
+                return [
+                    (r['source'], r['target'], r['relation'], r['description'])
+                    for r in self.relations
+                    if r['source'] == entity_name or r['target'] == entity_name
+                ]
+            return []
 
     db_client = MockDB()
     kg = KnowledgeGraph(db_client)
@@ -41,7 +53,7 @@ async def test_knowledge_graph():
 
     # Test querying relations
     alice_relations = await kg.get_related_entities("Alice")
-    print(f"Alice's relations: {len(alice_relations) if alice_relations else 0} found")
+    print(f"Alice's relations: {len(alice_relations)} found")
 
     # Test relation extraction from text
     llm_client = LiteLLMClient()
