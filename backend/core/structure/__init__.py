@@ -12,17 +12,16 @@ from .models import (
     PlotNode, NovelProject, PlotLoop,
     NodeType, NodeStatus, PacingTemplate
 )
-from .guardian import OutlineGuardian
-from .loop_tracker import LoopTracker
-from .pacer import PacingAnalyzer
+# 其他模块需要外部依赖（LLM、数据库等），在使用时单独导入
+# from .guardian import OutlineGuardian
+# from .loop_tracker import LoopTracker
+# from .pacer import PacingAnalyzer
 
 __all__ = [
-    # 数据模型
+    # 数据模型（基础功能，无外部依赖）
     "PlotNode", "NovelProject", "PlotLoop",
     "NodeType", "NodeStatus", "PacingTemplate",
 
-    # 核心组件
-    "OutlineGuardian",
-    "LoopTracker",
-    "PacingAnalyzer"
+    # 核心组件（需要外部依赖，单独导入）
+    # "OutlineGuardian", "LoopTracker", "PacingAnalyzer"
 ]
