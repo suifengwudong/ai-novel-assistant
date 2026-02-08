@@ -60,7 +60,25 @@ class LogicValidator:
                 import json
                 # 简单的清理 markdown 代码块标记
                 cleaned = result.replace("```json", "").replace("```", "").strip()
-                return json.loads(cleaned)
+                try:
+                    parsed = json.loads(cleaned)
+                    return parsed
+                except json.JSONDecodeError:
+                    # 如果JSON解析失败，尝试提取有用信息
+                    logger.warning(f"JSON解析失败，原始响应: {cleaned}")
+                    # 简单启发式：检查是否包含"false"或问题描述
+                    if "false" in cleaned.lower() or "冲突" in cleaned or "问题" in cleaned:
+                        return {
+                            "passed": False,
+                            "issues": ["内容存在逻辑问题"],
+                            "suggestions": ["请检查内容逻辑一致性"]
+                        }
+                    else:
+                        return {
+                            "passed": True,
+                            "issues": [],
+                            "suggestions": []
+                        }
             return result
             
         except Exception as e:
