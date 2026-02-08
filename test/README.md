@@ -4,11 +4,31 @@
 
 ## 🚀 启动脚本
 
+### start-all.bat
+**用途**: 一键启动完整AI小说助手系统
+**适用平台**: Windows
+**功能**:
+- 检查Python/Node.js环境和依赖
+- 初始化数据库
+- 同时启动后端API服务和前端开发服务器
+- 提供服务地址信息
+- 支持一键关闭所有服务
+
+**使用方法**:
+```bash
+test/start-all.bat
+```
+
+**启动的服务**:
+- 后端API: http://localhost:8000
+- 前端界面: http://localhost:3000
+- API文档: http://localhost:8000/docs
+
 ### start-frontend.bat / start-frontend.sh
-**用途**: 启动前端开发服务器
+**用途**: 仅启动前端开发服务器
 **适用平台**: Windows (.bat) / Linux/Mac (.sh)
 **功能**:
-- 自动检查Node.js和npm环境
+- 自动检查Node.js和yarn环境
 - 安装前端依赖（如果不存在）
 - 启动Vite开发服务器
 - 提供访问地址和API代理信息
