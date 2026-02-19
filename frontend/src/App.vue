@@ -93,10 +93,15 @@ const route = useRoute()
 
 const collapsed = ref(false)
 const theme = ref(lightTheme)
-const activeKey = ref('style')
+const activeKey = ref('projects')
 
 // 菜单配置
 const menuOptions = [
+  {
+    label: '📁 项目管理',
+    key: 'projects',
+    icon: () => h('span', { style: 'font-size: 18px' }, '📁')
+  },
   {
     label: '✨ 风格学习',
     key: 'style',

@@ -38,6 +38,8 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 aiofiles==23.2.1
 httpx==0.25.2
+reportlab==4.2.5
+ebooklib==0.18
 
 # Monitoring & Logging
 loguru==0.7.2
