@@ -4,11 +4,6 @@ import { createPinia } from 'pinia'
 import { createDiscreteApi, darkTheme, lightTheme } from 'naive-ui'
 
 import App from './App.vue'
-import StyleAnalysis from './views/StyleAnalysis.vue'
-import Polishing from './views/Polishing.vue'
-import Feedback from './views/Feedback.vue'
-import CharacterCards from './views/CharacterCards.vue'
-import PlotTree from './views/PlotTree.vue'
 
 import './style.css'
 
@@ -19,14 +14,14 @@ const { message, notification, dialog, loadingBar } = createDiscreteApi([
   'loadingBar'
 ])
 
-// 路由配置
+// 路由配置 — 使用懒加载，按需分包提升首屏速度
 const routes = [
   { path: '/', redirect: '/style' },
-  { path: '/style', component: StyleAnalysis, meta: { title: '风格学习' } },
-  { path: '/polish', component: Polishing, meta: { title: '智能润色' } },
-  { path: '/feedback', component: Feedback, meta: { title: '读者反馈' } },
-  { path: '/characters', component: CharacterCards, meta: { title: '角色卡片' } },
-  { path: '/plot-tree', component: PlotTree, meta: { title: '大纲树' } },
+  { path: '/style', component: () => import('./views/StyleAnalysis.vue'), meta: { title: '风格学习' } },
+  { path: '/polish', component: () => import('./views/Polishing.vue'), meta: { title: '智能润色' } },
+  { path: '/feedback', component: () => import('./views/Feedback.vue'), meta: { title: '读者反馈' } },
+  { path: '/characters', component: () => import('./views/CharacterCards.vue'), meta: { title: '角色卡片' } },
+  { path: '/plot-tree', component: () => import('./views/PlotTree.vue'), meta: { title: '大纲树' } },
 ]
 
 const router = createRouter({
