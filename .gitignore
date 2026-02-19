@@ -98,6 +98,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.conda/
 env/
 venv/
 ENV/
@@ -145,4 +146,4 @@ out/
 .docker/
 
 # uid and gid files
-litellm*
+litellm_uuid.txt
