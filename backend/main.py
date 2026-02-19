@@ -19,8 +19,8 @@ async def lifespan(app: FastAPI):
     # 启动时初始化
     try:
         logger.info("🚀 Starting AI Novel Assistant...")
-        logger.info(f"Environment: {settings.app_env}")
-        logger.info(f"LLM Provider: {settings.provider}")
+        logger.info(f"Environment: {settings.ENVIRONMENT}")
+        logger.info(f"LLM Provider: {settings.LLM_PROVIDER}")
     except Exception as e:
         logger.error(f"Error during startup: {e}")
         raise
@@ -47,14 +47,15 @@ app = FastAPI(
 # CORS中间件配置
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # 挂载 API 路由
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(style_router, prefix="/api/v1")
+app.include_router(agent_router, prefix="/api/v1")
 
 
 # ========================================
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=settings.api_port,
-        reload=settings.app_env == "development",
-        log_level=settings.log_level.lower()
+        port=settings.API_PORT,
+        reload=settings.ENVIRONMENT == "development",
+        log_level=settings.LOG_LEVEL.lower()
     )
