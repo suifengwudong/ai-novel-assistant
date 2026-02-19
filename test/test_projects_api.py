@@ -65,9 +65,10 @@ def client():
     app.dependency_overrides[get_db] = override_get_db
 
     with TestClient(app) as c:
-        yield c
-
-    _settings.DATABASE_URL = original_url
+        try:
+            yield c
+        finally:
+            _settings.DATABASE_URL = original_url
 
 
 def test_create_project(client):

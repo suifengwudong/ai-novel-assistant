@@ -40,8 +40,8 @@ const handleLogin = async () => {
     localStorage.setItem('token', data.access_token)
     message.success('登录成功')
     router.push('/projects')
-  } catch (e: any) {
-    message.error(e?.response?.data?.detail || '用户名或密码错误，或服务异常')
+  } catch {
+    message.error('用户名或密码错误')
   } finally {
     loading.value = false
   }
