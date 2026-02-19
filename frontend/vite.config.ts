@@ -15,8 +15,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api/v1')
+        changeOrigin: true
       }
     }
   },
@@ -29,6 +28,14 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-vue': ['vue', 'vue-router', 'pinia'],
+          'vendor-ui': ['naive-ui', '@vicons/ionicons5'],
+        }
       }
     }
   }

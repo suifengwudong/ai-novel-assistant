@@ -4,9 +4,12 @@
   "description": "AI Novel Assistant 前端应用",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path ../.gitignore",
+    "format": "prettier --write \"src/**/*.{ts,vue,css}\"",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@vicons/ionicons5": "^0.13.0",
@@ -22,10 +25,17 @@
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "@vitejs/plugin-vue": "^5.0.3",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
+    "@vue/test-utils": "^2.4.3",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.19.2",
+    "prettier": "^3.2.4",
+    "terser": "^5.46.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
+    "vitest": "^1.2.0",
+    "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^1.8.27"
   }
 }

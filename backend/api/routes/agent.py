@@ -7,8 +7,8 @@ from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
 from loguru import logger
+from pydantic import BaseModel
 
 from core.agents.polisher import PolishingAgent
 from core.feedback_simulator import FeedbackSimulator, ReaderType
@@ -20,6 +20,7 @@ router = APIRouter(prefix="/agent", tags=["agent"])
 # ============================
 # 请求/响应模型
 # ============================
+
 
 class PolishRequest(BaseModel):
     content: str
@@ -41,6 +42,7 @@ class GenerateRequest(BaseModel):
 # ============================
 # 路由处理器
 # ============================
+
 
 @router.post("/polish")
 async def polish_content(request: PolishRequest):
@@ -70,15 +72,9 @@ async def simulate_feedback(request: FeedbackRequest):
 
     # 过滤有效的读者类型
     valid_types = {rt.value for rt in ReaderType}
-    reader_types = [
-        ReaderType(rt) for rt in request.reader_types
-        if rt in valid_types
-    ]
+    reader_types = [ReaderType(rt) for rt in request.reader_types if rt in valid_types]
     if not reader_types:
-        raise HTTPException(
-            status_code=400,
-            detail=f"无效的读者类型，可选: {valid_types}"
-        )
+        raise HTTPException(status_code=400, detail=f"无效的读者类型，可选: {valid_types}")
 
     try:
         llm_client = LiteLLMClient()

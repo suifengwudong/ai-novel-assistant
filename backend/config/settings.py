@@ -1,6 +1,8 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
 from typing import List, Optional
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=False, env_file=".env", extra="ignore")
@@ -22,10 +24,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = Field(default="development", alias="APP_ENV")
     API_PORT: int = Field(default=8000, alias="BACKEND_PORT")
     FRONTEND_PORT: int = Field(default=3000, alias="FRONTEND_PORT")
-    CORS_ORIGINS: List[str] = Field(
-        default=["http://localhost:3000", "http://127.0.0.1:3000"],
-        alias="CORS_ORIGINS"
-    )
+    CORS_ORIGINS: List[str] = Field(default=["http://localhost:3000", "http://127.0.0.1:3000"], alias="CORS_ORIGINS")
 
     # Feature flags
     ENABLE_AUTO_BACKUP: bool = Field(default=True, alias="ENABLE_AUTO_BACKUP")
@@ -40,6 +39,7 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = Field(default="your_secret_key_change_in_production", alias="SECRET_KEY")
     JWT_EXPIRE_DAYS: int = Field(default=30, alias="JWT_EXPIRE_DAYS")
+
 
 # Global settings instance
 settings = Settings()
