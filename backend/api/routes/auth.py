@@ -22,8 +22,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {})
+engine = create_engine("sqlite:///F:/Uni/s/2025_4寒/Projects/ai-novel-assistant/data/novel_assistant.db", connect_args={"check_same_thread": False} if "sqlite" in "sqlite:///F:/Uni/s/2025_4寒/Projects/ai-novel-assistant/data/novel_assistant.db" else {})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base.metadata.create_all(bind=engine)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer_scheme = HTTPBearer()
@@ -40,6 +41,17 @@ def get_db():
 
 
 def hash_password(password: str) -> str:
+    # bcrypt has a 72 byte limit, passlib should handle this but let's be explicit
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        # Truncate to 72 bytes but ensure it's valid UTF-8
+        truncated_bytes = password_bytes[:72]
+        # Find the last complete UTF-8 character
+        while len(truncated_bytes) > 0 and (truncated_bytes[-1] & 0x80):
+            if (truncated_bytes[-1] & 0xC0) == 0xC0:  # Start of multi-byte sequence
+                break
+            truncated_bytes = truncated_bytes[:-1]
+        password = truncated_bytes.decode('utf-8', errors='ignore')
     return pwd_context.hash(password)
 
 
