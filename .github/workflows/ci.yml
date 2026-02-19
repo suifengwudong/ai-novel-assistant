@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Backend: lint + tests ──────────────────────────────────────────────────
+  backend:
+    name: Backend (Python)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Lint (flake8)
+        run: |
+          cd backend
+          flake8 . --max-line-length=120 \
+            --exclude=__pycache__,migrations,data \
+            --per-file-ignores="__init__.py:F401"
+
+      - name: Run API route tests
+        run: python test/test_api_routes.py
+
+  # ── Frontend: lint + type-check + build ───────────────────────────────────
+  frontend:
+    name: Frontend (Node/Vue)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        working-directory: frontend
+        run: yarn lint
+
+      - name: Build (includes vue-tsc type check)
+        working-directory: frontend
+        run: yarn build
