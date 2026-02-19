@@ -23,10 +23,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
-import axios from 'axios'
+import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
 const message = useMessage()
+const authStore = useAuthStore()
 const loading = ref(false)
 const form = ref({ username: '', password: '' })
 
@@ -36,8 +37,7 @@ const handleLogin = async () => {
   }
   loading.value = true
   try {
-    const { data } = await axios.post('/api/v1/auth/login', form.value)
-    localStorage.setItem('token', data.access_token)
+    await authStore.login(form.value.username, form.value.password)
     message.success('登录成功')
     router.push('/projects')
   } catch {

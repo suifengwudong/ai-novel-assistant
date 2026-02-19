@@ -47,7 +47,7 @@
     </n-spin>
 
     <!-- 项目详情 -->
-    <n-modal v-model:show="!!selectedProject" preset="card" style="width: 700px;" :title="selectedProject?.title">
+    <n-modal :show="!!selectedProject" preset="card" style="width: 700px;" :title="selectedProject?.title" @update:show="selectedProject = null">
       <n-descriptions v-if="selectedProject" :column="2" label-placement="left" bordered>
         <n-descriptions-item label="状态">
           <n-tag :type="statusType(selectedProject.status)">{{ selectedProject.status }}</n-tag>

@@ -2,16 +2,16 @@
 核心引擎模块
 """
 
-from .agents import BaseAgent, ChapterGenerator, LogicValidator, StyleAnalyzer
+from .agents import NovelAssistantOrchestrator, PolishingAgent
 from .llm import LiteLLMClient
 from .memory import HierarchicalSummarizer, KnowledgeManager
-from .structure import OutlineManager, PlotTracker
-from .validation import ContentValidator, LogicChecker, QualityAssessor
+from .structure import OutlineGuardian, LoopTracker, PacingAnalyzer
+from .validation import LogicValidator
 
 __all__ = [
-    "BaseAgent", "ChapterGenerator", "LogicValidator", "StyleAnalyzer",
+    "NovelAssistantOrchestrator", "PolishingAgent",
     "LiteLLMClient",
     "HierarchicalSummarizer", "KnowledgeManager",
-    "OutlineManager", "PlotTracker",
-    "ContentValidator", "LogicChecker", "QualityAssessor"
+    "OutlineGuardian", "LoopTracker", "PacingAnalyzer",
+    "LogicValidator"
 ]

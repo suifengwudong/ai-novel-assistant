@@ -24,8 +24,27 @@ async def lifespan(app: FastAPI):
         logger.info(f"Environment: {settings.ENVIRONMENT}")
         logger.info(f"LLM Provider: {settings.LLM_PROVIDER}")
         
+        # 初始化数据库
+        from database.models import Base
+        from sqlalchemy import create_engine
+        import os
+        
+        # 确保数据库目录存在
+        db_path = settings.DATABASE_URL.replace("sqlite:///", "")
+        db_dir = os.path.dirname(db_path)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            logger.info(f"Created database directory: {db_dir}")
+        
+        logger.info(f"Initializing database with URL: {settings.DATABASE_URL}")
+        engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {})
+        Base.metadata.create_all(bind=engine)
+        logger.info("✅ Database initialized successfully")
+        
     except Exception as e:
         logger.error(f"Error during startup: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         raise
 
     yield
@@ -59,6 +78,7 @@ app.add_middleware(
 # 挂载 API 路由
 app.include_router(style_router, prefix="/api/v1")
 app.include_router(agent_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1")
 
 
 @app.get("/health")

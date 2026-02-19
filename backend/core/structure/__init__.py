@@ -8,6 +8,12 @@ Phase 4: 实时监控与反馈系统
 - 节奏分析器：基于字数和情绪曲线分析
 """
 
+from .guardian import OutlineGuardian
+from .loop_tracker import LoopTracker
+from .pacer import PacingAnalyzer
+
+__all__ = ["OutlineGuardian", "LoopTracker", "PacingAnalyzer"]
+
 from .models import NodeStatus, NodeType, NovelProject, PacingTemplate, PlotLoop, PlotNode
 
 # 其他模块需要外部依赖（LLM、数据库等），在使用时单独导入
