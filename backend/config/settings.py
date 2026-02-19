@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     LLM_MAX_TOKENS: int = Field(default=4096, alias="LLM_MAX_TOKENS")
 
     # Database
-    DATABASE_URL: str = Field(default="sqlite:///F:/Uni/s/2025_4寒/Projects/ai-novel-assistant/data/novel_assistant.db", alias="DATABASE_URL")
+    DATABASE_URL: str = Field(default="sqlite:///F:\\Uni\\s\\2025_4寒\\Projects\\ai-novel-assistant\\data\\novel_assistant.db", alias="DATABASE_URL")
     VECTOR_STORE_PATH: str = Field(default="./data/vector_store", alias="VECTOR_STORE_PATH")
     REDIS_URL: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
 

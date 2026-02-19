@@ -93,22 +93,27 @@ const route = useRoute()
 
 const collapsed = ref(false)
 const theme = ref(lightTheme)
-const activeKey = ref('projects')
+const activeKey = ref('workspace')
 
 // 菜单配置
 const menuOptions = [
+  {
+    label: '✍️ 写作工作台',
+    key: 'workspace',
+    icon: () => h('span', { style: 'font-size: 18px' }, '✍️')
+  },
   {
     label: '📁 项目管理',
     key: 'projects',
     icon: () => h('span', { style: 'font-size: 18px' }, '📁')
   },
   {
-    label: '✨ 风格学习',
+    label: '🎨 风格学习',
     key: 'style',
     icon: () => h('span', { style: 'font-size: 18px' }, '🎨')
   },
   {
-    label: '✒️ 智能润色',
+    label: '✏️ 智能润色',
     key: 'polish',
     icon: () => h('span', { style: 'font-size: 18px' }, '✏️')
   },
@@ -147,8 +152,8 @@ const toggleTheme = () => {
 
 // 初始化
 onMounted(() => {
-  const currentPath = route.path.replace('/', '')
-  activeKey.value = currentPath || 'style'
+  const currentPath = route.path.replace('/', '') || 'workspace'
+  activeKey.value = currentPath === '' ? 'workspace' : currentPath
 })
 </script>
 

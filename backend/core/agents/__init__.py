@@ -2,9 +2,7 @@
 智能体模块
 """
 
-from .base_agent import BaseAgent
-from .chapter_generator import ChapterGenerator
-from .logic_validator import LogicValidator
-from .style_analyzer import StyleAnalyzer
+from .orchestrator import NovelAssistantOrchestrator
+from .polisher import PolishingAgent
 
-__all__ = ["BaseAgent", "ChapterGenerator", "LogicValidator", "StyleAnalyzer"]
+__all__ = ["NovelAssistantOrchestrator", "PolishingAgent"]
