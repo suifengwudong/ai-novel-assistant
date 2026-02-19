@@ -24,14 +24,6 @@ async def lifespan(app: FastAPI):
         logger.info(f"Environment: {settings.ENVIRONMENT}")
         logger.info(f"LLM Provider: {settings.LLM_PROVIDER}")
         
-        # 初始化数据库
-        from database.models import Base
-        from sqlalchemy import create_engine
-        logger.info(f"Initializing database with URL: {settings.DATABASE_URL}")
-        engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {})
-        Base.metadata.create_all(bind=engine)
-        logger.info("✅ Database initialized successfully")
-        
     except Exception as e:
         logger.error(f"Error during startup: {e}")
         raise
