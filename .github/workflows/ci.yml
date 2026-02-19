@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
+      - name: Install test tools
+        run: pip install pytest pytest-asyncio black isort
+
       - name: Lint (flake8)
         run: |
           cd backend
@@ -33,8 +36,18 @@ jobs:
             --exclude=__pycache__,migrations,data \
             --per-file-ignores="__init__.py:F401"
 
-      - name: Run API route tests
-        run: python test/test_api_routes.py
+      - name: Format check (black)
+        run: |
+          cd backend
+          black . --check --line-length=120
+
+      - name: Import sort check (isort)
+        run: |
+          cd backend
+          isort . --check-only --profile black --line-length 120
+
+      - name: Run tests
+        run: python -m pytest test/ -v --asyncio-mode=auto
 
   # ── Frontend: lint + type-check + build ───────────────────────────────────
   frontend:
@@ -47,17 +60,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: yarn
-          cache-dependency-path: frontend/yarn.lock
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         working-directory: frontend
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
         working-directory: frontend
-        run: yarn lint
+        run: npm run lint
 
-      - name: Build (includes vue-tsc type check)
+      - name: Build (includes type check)
         working-directory: frontend
-        run: yarn build
+        run: npm run build

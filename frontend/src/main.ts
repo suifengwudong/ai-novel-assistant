@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createPinia } from 'pinia'
-import { createDiscreteApi, darkTheme, lightTheme } from 'naive-ui'
+import { createDiscreteApi } from 'naive-ui'
 
 import App from './App.vue'
 

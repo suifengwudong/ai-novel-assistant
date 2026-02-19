@@ -4,6 +4,7 @@
 import sys
 import os
 import asyncio
+import pytest
 
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
@@ -20,10 +21,16 @@ class MockSummarizer:
     async def get_recent_summaries(self, count):
         return []
 
+# Mock dependencies
+class MockKnowledgeManager:
+    async def retrieve_context(self, query, top_k=10):
+        return ["核心设定：这是一个奇幻世界，只有魔法师才能使用魔法物品。"]
+
 class MockValidator:
     async def check(self, content, core_knowledge, locked_settings):
         return {"passed": True, "issues": []}
 
+@pytest.mark.asyncio
 async def test_continue_functionality():
     print("Testing Continue Functionality...")
 

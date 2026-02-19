@@ -3,9 +3,11 @@
 用于管理实体间的关系 (Entity-Relation-Entity)
 """
 import json
-from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
 from loguru import logger
+
 
 @dataclass
 class Relation:
@@ -14,9 +16,10 @@ class Relation:
     relation: str  # e.g., "friend_of", "located_in", "owns"
     description: str = ""
 
+
 class KnowledgeGraph:
     def __init__(self, db_client):
-        self.db = db_client # 假设复用关系型数据库或图数据库连接
+        self.db = db_client  # 假设复用关系型数据库或图数据库连接
         self._init_table()
 
     def _init_table(self):
@@ -24,7 +27,8 @@ class KnowledgeGraph:
         # 兼容性处理：如果 db_client 支持 execute
         if hasattr(self.db, "execute"):
             try:
-                self.db.execute("""
+                self.db.execute(
+                    """
                 CREATE TABLE IF NOT EXISTS entity_relations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     source TEXT NOT NULL,
@@ -33,7 +37,8 @@ class KnowledgeGraph:
                     description TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-                """)
+                """
+                )
                 logger.info("Knowledge graph table initialized")
             except Exception as e:
                 logger.warning(f"KG Table init warning: {e}")
@@ -59,11 +64,11 @@ class KnowledgeGraph:
         """查询相关实体"""
         query = "SELECT source, target, relation, description FROM entity_relations WHERE source = ? OR target = ?"
         params = [entity_name, entity_name]
-        
+
         if relation_type:
             query += " AND relation = ?"
             params.append(relation_type)
-            
+
         try:
             if hasattr(self.db, "fetchall"):
                 rows = self.db.fetchall(query, tuple(params))
@@ -89,7 +94,7 @@ class KnowledgeGraph:
         try:
             # 调用 LLM 并尝试解析 JSON
             result = await llm_client.generate(prompt)
-            
+
             # 简单的 JSON 提取逻辑
             if "```json" in result:
                 json_str = result.split("```json")[1].split("```")[0].strip()
@@ -99,18 +104,20 @@ class KnowledgeGraph:
                 json_str = result
 
             data = json.loads(json_str)
-            
+
             relations = []
             for item in data:
-                relations.append(Relation(
-                    source=item.get("source", "Unknown"),
-                    target=item.get("target", "Unknown"),
-                    relation=item.get("relation", "related_to"),
-                    description=item.get("description", "")
-                ))
+                relations.append(
+                    Relation(
+                        source=item.get("source", "Unknown"),
+                        target=item.get("target", "Unknown"),
+                        relation=item.get("relation", "related_to"),
+                        description=item.get("description", ""),
+                    )
+                )
             logger.info(f"Extracted {len(relations)} relations from text")
             return relations
-            
+
         except Exception as e:
             logger.error(f"Relation extraction failed: {e}")
             return []

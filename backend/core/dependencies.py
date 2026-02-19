@@ -3,14 +3,17 @@
 管理所有服务的生命周期和依赖关系
 """
 from typing import Optional
+
+from loguru import logger
+
 from config.settings import settings
 from core.llm.litellm_client import LiteLLMClient
-from database.vector_store import VectorStore
-from database.db_client import DatabaseClient
 from core.memory.knowledge_graph import KnowledgeGraph
 from core.structure.guardian import OutlineGuardian
 from core.validation.logic_validator import LogicValidator
-from loguru import logger
+from database.db_client import DatabaseClient
+from database.vector_store import VectorStore
+
 
 class DependencyContainer:
     """
@@ -18,7 +21,7 @@ class DependencyContainer:
     单例模式，确保服务实例的唯一性和生命周期管理
     """
 
-    _instance: Optional['DependencyContainer'] = None
+    _instance: Optional["DependencyContainer"] = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -26,7 +29,7 @@ class DependencyContainer:
         return cls._instance
 
     def __init__(self):
-        if not hasattr(self, '_initialized'):
+        if not hasattr(self, "_initialized"):
             self._initialized = True
             self._llm_client: Optional[LiteLLMClient] = None
             self._vector_store: Optional[VectorStore] = None
@@ -46,8 +49,7 @@ class DependencyContainer:
         if self._vector_store is None:
             try:
                 self._vector_store = VectorStore(
-                    collection_name="novel_knowledge",
-                    persist_directory=settings.vector_store_path
+                    collection_name="novel_knowledge", persist_directory=settings.vector_store_path
                 )
             except Exception as e:
                 logger.error(f"Failed to initialize VectorStore: {e}")
@@ -81,6 +83,7 @@ class DependencyContainer:
         if self._logic_validator is None:
             self._logic_validator = LogicValidator(self.llm_client)
         return self._logic_validator
+
 
 # 全局容器实例
 container = DependencyContainer()

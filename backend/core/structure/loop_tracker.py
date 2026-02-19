@@ -4,9 +4,12 @@
 """
 import json
 import re
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
+
 from loguru import logger
-from core.structure.models import PlotLoop, NovelProject, PlotNode
+
+from core.structure.models import NovelProject, PlotLoop, PlotNode
+
 
 class LoopTracker:
     """
@@ -101,7 +104,7 @@ class LoopTracker:
                         description=loop_data["description"],
                         created_in_node=node_id,
                         status="open",
-                        importance=loop_data.get("importance", "minor")
+                        importance=loop_data.get("importance", "minor"),
                     )
 
                     # 验证重要性等级
@@ -142,10 +145,9 @@ class LoopTracker:
         logger.info(f"正在检查伏笔回收... 待检查伏笔数: {len(open_loops)}")
 
         # 准备伏笔描述
-        loops_text = "\n".join([
-            f"{i+1}. [{loop.importance.upper()}] {loop.description}"
-            for i, loop in enumerate(open_loops)
-        ])
+        loops_text = "\n".join(
+            [f"{i+1}. [{loop.importance.upper()}] {loop.description}" for i, loop in enumerate(open_loops)]
+        )
 
         prompt = f"""
 你是一位专业的文学编辑，负责检查小说伏笔的回收情况。
@@ -221,13 +223,13 @@ class LoopTracker:
         open_by_importance = {
             "critical": len([l for l in open_loops if l.importance == "critical"]),
             "major": len([l for l in open_loops if l.importance == "major"]),
-            "minor": len([l for l in open_loops if l.importance == "minor"])
+            "minor": len([l for l in open_loops if l.importance == "minor"]),
         }
 
         resolved_by_importance = {
             "critical": len([l for l in resolved_loops if l.importance == "critical"]),
             "major": len([l for l in resolved_loops if l.importance == "major"]),
-            "minor": len([l for l in resolved_loops if l.importance == "minor"])
+            "minor": len([l for l in resolved_loops if l.importance == "minor"]),
         }
 
         # 计算解决率
@@ -243,12 +245,12 @@ class LoopTracker:
                 "total_resolved": len(resolved_loops),
                 "total_loops": total_loops,
                 "resolution_rate": round(resolution_rate, 2),
-                "health_score": health_score
+                "health_score": health_score,
             },
             "open_by_importance": open_by_importance,
             "resolved_by_importance": resolved_by_importance,
             "critical_issues": self._identify_critical_issues(open_loops),
-            "recommendations": self._generate_recommendations(open_by_importance, health_score)
+            "recommendations": self._generate_recommendations(open_by_importance, health_score),
         }
 
         return report
@@ -312,13 +314,13 @@ class LoopTracker:
         end = text.rfind("}")
 
         if start != -1 and end != -1 and end > start:
-            return text[start:end+1]
+            return text[start : end + 1]
 
         # 如果没找到括号，尝试找数组
         start = text.find("[")
         end = text.rfind("]")
 
         if start != -1 and end != -1 and end > start:
-            return text[start:end+1]
+            return text[start : end + 1]
 
         return text

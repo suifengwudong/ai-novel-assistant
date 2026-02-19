@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from api.v1.endpoints import knowledge, guardian, generation
+
+from api.v1.endpoints import generation, guardian, knowledge
 
 api_router = APIRouter()
 

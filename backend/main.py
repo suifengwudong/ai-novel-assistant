@@ -2,15 +2,17 @@
 API主应用
 """
 
+from contextlib import asynccontextmanager
+
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
-import uvicorn
 from loguru import logger
 
+from api.routes import agent_router, style_router
 from config.settings import settings
-from api.routes import style_router, agent_router
+
 
 # 应用生命周期管理
 @asynccontextmanager
@@ -24,9 +26,9 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Error during startup: {e}")
         raise
-    
+
     yield
-    
+
     # 关闭时清理
     try:
         logger.info("👋 Shutting down AI Novel Assistant...")
@@ -41,7 +43,7 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # CORS中间件配置
@@ -62,40 +64,28 @@ app.include_router(agent_router, prefix="/api/v1")
 # 健康检查
 # ========================================
 
+
 @app.get("/health")
 async def health_check():
     """健康检查端点"""
-    return {
-        "status": "healthy",
-        "version": "0.1.0",
-        "environment": settings.ENVIRONMENT
-    }
+    return {"status": "healthy", "version": "0.1.0", "environment": settings.ENVIRONMENT}
 
 
 @app.get("/")
 async def root():
     """根路径"""
-    return {
-        "message": "🎨 AI Novel Assistant API",
-        "docs": "/docs",
-        "health": "/health"
-    }
+    return {"message": "🎨 AI Novel Assistant API", "docs": "/docs", "health": "/health"}
 
 
 # ========================================
 # 全局异常处理
 # ========================================
 
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     """HTTP异常处理"""
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": exc.detail,
-            "status_code": exc.status_code
-        }
-    )
+    return JSONResponse(status_code=exc.status_code, content={"error": exc.detail, "status_code": exc.status_code})
 
 
 @app.exception_handler(Exception)
@@ -106,8 +96,8 @@ async def general_exception_handler(request, exc):
         status_code=500,
         content={
             "error": "Internal server error",
-            "detail": str(exc) if settings.ENVIRONMENT == "development" else None
-        }
+            "detail": str(exc) if settings.ENVIRONMENT == "development" else None,
+        },
     )
 
 
@@ -129,5 +119,5 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=settings.API_PORT,
         reload=settings.ENVIRONMENT == "development",
-        log_level=settings.LOG_LEVEL.lower()
+        log_level=settings.LOG_LEVEL.lower(),
     )
