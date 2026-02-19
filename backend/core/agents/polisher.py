@@ -2,8 +2,10 @@
 润色优化 Agent
 对草稿进行精修，提升文学性
 """
-from typing import Dict, Any
+from typing import Any, Dict
+
 from loguru import logger
+
 
 class PolishingAgent:
     def __init__(self, llm_client):
@@ -23,7 +25,7 @@ class PolishingAgent:
             "general": "提升整体文笔流畅度和文学性，修正语病。",
             "descriptive": "加强环境和细节描写，增强画面感，多用视听嗅味触五感描写。",
             "emotional": "深入挖掘人物内心活动，增强情感渲染力和感染力。",
-            "action": "精简冗余文字，加快叙事节奏，使动作描写更凌厉更有张力。"
+            "action": "精简冗余文字，加快叙事节奏，使动作描写更凌厉更有张力。",
         }
 
         instruction = focus_prompts.get(focus, focus_prompts["general"])
@@ -46,4 +48,4 @@ class PolishingAgent:
             return result
         except Exception as e:
             logger.error(f"Polishing failed: {e}")
-            return content # 失败则返回原文
+            return content  # 失败则返回原文

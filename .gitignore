@@ -124,12 +124,12 @@ dmypy.json
 .pyre/
 
 # IDE
+# VS Code
 .vscode/
 .github/
 .idea/
 *.swp
-*.swo
-*~
+*.swo*~
 .DS_Store
 
 # Data directories

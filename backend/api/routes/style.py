@@ -2,11 +2,11 @@
 风格学习 API 路由
 """
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from loguru import logger
+from pydantic import BaseModel
 
-from core.style_learning import StyleLearner
 from core.llm.litellm_client import LiteLLMClient
+from core.style_learning import StyleLearner
 
 router = APIRouter(prefix="/style", tags=["style"])
 

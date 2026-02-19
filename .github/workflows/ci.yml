@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Backend: lint + tests ──────────────────────────────────────────────────
+  backend:
+    name: Backend (Python)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Install test tools
+        run: pip install pytest pytest-asyncio black isort
+
+      - name: Lint (flake8)
+        run: |
+          cd backend
+          flake8 . --max-line-length=120 \
+            --exclude=__pycache__,migrations,data \
+            --per-file-ignores="__init__.py:F401"
+
+      - name: Format check (black)
+        run: |
+          cd backend
+          black . --check --line-length=120
+
+      - name: Import sort check (isort)
+        run: |
+          cd backend
+          isort . --check-only --profile black --line-length 120
+
+      - name: Run tests
+        run: python -m pytest test/ -v --asyncio-mode=auto
+
+  # ── Frontend: lint + type-check + build ───────────────────────────────────
+  frontend:
+    name: Frontend (Node/Vue)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build (includes type check)
+        working-directory: frontend
+        run: npm run build

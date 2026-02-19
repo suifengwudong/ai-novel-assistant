@@ -2,27 +2,31 @@
 风格学习系统
 分析样章并提取风格特征，用于指导生成
 """
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Optional
+
 from loguru import logger
-from dataclasses import dataclass, asdict
+
 
 @dataclass
 class StyleProfile:
     """风格画像"""
+
     id: str
     name: str
     lexical_features: List[str]  # 用词特征
-    sentence_patterns: List[str] # 句式模式
-    rhetorical_devices: List[str] # 修辞手法
-    tone: str # 整体基调
+    sentence_patterns: List[str]  # 句式模式
+    rhetorical_devices: List[str]  # 修辞手法
+    tone: str  # 整体基调
 
     def to_dict(self):
         return asdict(self)
 
+
 class StyleLearner:
     def __init__(self, llm_client, db):
         self.llm = llm_client
-        self.db = db # 假设是一个可以存取 JSON/Blob 的数据库接口
+        self.db = db  # 假设是一个可以存取 JSON/Blob 的数据库接口
 
     async def analyze_style(self, sample_text: str, style_name: str) -> StyleProfile:
         """从样章中提取风格特征"""
@@ -49,10 +53,11 @@ class StyleLearner:
 }}
 """
         try:
-            result = await self.llm.generate(prompt) # Remove format="json" for broad compatibility
+            result = await self.llm.generate(prompt)  # Remove format="json" for broad compatibility
 
             # 简单的 JSON 提取
             import json
+
             if "```json" in result:
                 json_str = result.split("```json")[1].split("```")[0].strip()
             elif "```" in result:
@@ -68,7 +73,7 @@ class StyleLearner:
                 lexical_features=data.get("lexical_features", []),
                 sentence_patterns=data.get("sentence_patterns", []),
                 rhetorical_devices=data.get("rhetorical_devices", []),
-                tone=data.get("tone", "default")
+                tone=data.get("tone", "default"),
             )
 
             # 保存到数据库 (Mock)
