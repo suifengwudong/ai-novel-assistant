@@ -4,9 +4,12 @@
 """
 import json
 import statistics
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
+
 from loguru import logger
-from core.structure.models import NovelProject, PlotNode, PacingTemplate, PacingCheckpoint
+
+from core.structure.models import NovelProject, PacingCheckpoint, PacingTemplate, PlotNode
+
 
 class PacingAnalyzer:
     """
@@ -65,7 +68,7 @@ class PacingAnalyzer:
                 PacingCheckpoint(0.85, 9, "结局构建 - 高潮铺垫", PacingTemplate.SAVE_THE_CAT),
                 PacingCheckpoint(0.95, 10, "最终对决 - 故事高潮", PacingTemplate.SAVE_THE_CAT),
                 PacingCheckpoint(1.0, 4, "终场 - 幸福结局", PacingTemplate.SAVE_THE_CAT),
-            ]
+            ],
         }
 
     async def analyze_scene_tension(self, content: str) -> Dict[str, Any]:
@@ -81,12 +84,7 @@ class PacingAnalyzer:
         logger.info("正在分析场景紧张度...")
 
         if not content.strip():
-            return {
-                "tension_score": 5,
-                "confidence": 0.0,
-                "reason": "内容为空",
-                "emotions": []
-            }
+            return {"tension_score": 5, "confidence": 0.0, "reason": "内容为空", "emotions": []}
 
         prompt = f"""
 你是一位专业的文学编辑和叙事分析师。请分析以下场景的紧张度和情绪强度。
@@ -151,25 +149,17 @@ class PacingAnalyzer:
         checkpoints = self.pacing_templates.get(template, [])
 
         if not checkpoints:
-            return {
-                "status": "unknown",
-                "message": f"不支持的节奏模板: {template}",
-                "suggestions": []
-            }
+            return {"status": "unknown", "message": f"不支持的节奏模板: {template}", "suggestions": []}
 
         # 找到最接近的检查点
         nearest_checkpoint = self._find_nearest_checkpoint(checkpoints, current_progress)
 
         if not nearest_checkpoint:
-            return {
-                "status": "normal",
-                "message": "当前进度正常",
-                "suggestions": []
-            }
+            return {"status": "normal", "message": "当前进度正常", "suggestions": []}
 
         # 分析当前紧张度（这里需要实际的场景内容来分析）
         # 暂时使用节点的预估紧张度
-        current_tension = getattr(current_node, 'current_tension', 5)
+        current_tension = getattr(current_node, "current_tension", 5)
 
         # 计算偏差
         expected_tension = nearest_checkpoint.expected_tension
@@ -177,8 +167,7 @@ class PacingAnalyzer:
 
         # 生成分析结果
         result = self._analyze_pacing_deviation(
-            current_progress, current_tension, expected_tension,
-            nearest_checkpoint, deviation
+            current_progress, current_tension, expected_tension, nearest_checkpoint, deviation
         )
 
         logger.info(f"节奏检查完成 - 进度: {current_progress:.1%}, 紧张度: {current_tension}/10")
@@ -198,8 +187,7 @@ class PacingAnalyzer:
 
         # 计算整体统计
         total_nodes = len(project.outline_tree)
-        completed_nodes = sum(1 for node in project.outline_tree
-                            if node.status.name == "FINISHED")
+        completed_nodes = sum(1 for node in project.outline_tree if node.status.name == "FINISHED")
 
         if total_nodes == 0:
             return {"error": "项目没有大纲节点"}
@@ -217,12 +205,12 @@ class PacingAnalyzer:
                 "total_nodes": total_nodes,
                 "completed_nodes": completed_nodes,
                 "completion_rate": round(completion_rate, 2),
-                "current_progress": round(project.completion_percentage, 2)
+                "current_progress": round(project.completion_percentage, 2),
             },
             "pacing_curve": pacing_curve,
             "template": project.pacing_template.value,
             "recommendations": recommendations,
-            "health_score": self._calculate_pacing_health(pacing_curve)
+            "health_score": self._calculate_pacing_health(pacing_curve),
         }
 
         return report
@@ -234,14 +222,14 @@ class PacingAnalyzer:
 
         # 找到当前节点的位置
         try:
-            current_index = next(i for i, node in enumerate(project.outline_tree)
-                               if node.id == current_node.id)
+            current_index = next(i for i, node in enumerate(project.outline_tree) if node.id == current_node.id)
             return (current_index + 1) / len(project.outline_tree)
         except StopIteration:
             return project.completion_percentage
 
-    def _find_nearest_checkpoint(self, checkpoints: List[PacingCheckpoint],
-                               progress: float) -> Optional[PacingCheckpoint]:
+    def _find_nearest_checkpoint(
+        self, checkpoints: List[PacingCheckpoint], progress: float
+    ) -> Optional[PacingCheckpoint]:
         """找到最接近的节奏检查点"""
         if not checkpoints:
             return None
@@ -255,36 +243,30 @@ class PacingAnalyzer:
 
         return None
 
-    def _analyze_pacing_deviation(self, progress: float, current_tension: int,
-                                expected_tension: int, checkpoint: PacingCheckpoint,
-                                deviation: float) -> Dict[str, Any]:
+    def _analyze_pacing_deviation(
+        self,
+        progress: float,
+        current_tension: int,
+        expected_tension: int,
+        checkpoint: PacingCheckpoint,
+        deviation: float,
+    ) -> Dict[str, Any]:
         """分析节奏偏差"""
 
         if deviation <= 1:
-            return {
-                "status": "good",
-                "message": f"节奏正常 - {checkpoint.description}",
-                "suggestions": []
-            }
+            return {"status": "good", "message": f"节奏正常 - {checkpoint.description}", "suggestions": []}
         elif deviation <= 3:
             return {
                 "status": "warning",
                 "message": f"节奏略有偏差 - {checkpoint.description} (期望紧张度: {expected_tension}, 当前: {current_tension})",
-                "suggestions": [
-                    f"考虑调整场景紧张度以符合{checkpoint.description}的要求",
-                    "检查是否需要增加或减少冲突元素"
-                ]
+                "suggestions": [f"考虑调整场景紧张度以符合{checkpoint.description}的要求", "检查是否需要增加或减少冲突元素"],
             }
         else:
             severity = "high" if deviation > 5 else "medium"
             return {
                 "status": severity,
                 "message": f"节奏严重偏差 - {checkpoint.description} (期望紧张度: {expected_tension}, 当前: {current_tension})",
-                "suggestions": [
-                    f"⚠️ 当前场景紧张度与{checkpoint.description}相差较大",
-                    "建议重新审视场景设计或调整故事节奏",
-                    "考虑是否需要修改大纲以适应当前写作方向"
-                ]
+                "suggestions": [f"⚠️ 当前场景紧张度与{checkpoint.description}相差较大", "建议重新审视场景设计或调整故事节奏", "考虑是否需要修改大纲以适应当前写作方向"],
             }
 
     async def _analyze_pacing_curve(self, project: NovelProject) -> List[Dict[str, Any]]:
@@ -295,20 +277,21 @@ class PacingAnalyzer:
             progress = (i + 1) / len(project.outline_tree)
 
             # 这里应该分析实际内容，但暂时使用估算值
-            estimated_tension = getattr(node, 'estimated_tension', 5)
+            estimated_tension = getattr(node, "estimated_tension", 5)
 
-            curve.append({
-                "node_id": node.id,
-                "title": node.title,
-                "progress": round(progress, 2),
-                "tension": estimated_tension,
-                "status": node.status.value
-            })
+            curve.append(
+                {
+                    "node_id": node.id,
+                    "title": node.title,
+                    "progress": round(progress, 2),
+                    "tension": estimated_tension,
+                    "status": node.status.value,
+                }
+            )
 
         return curve
 
-    def _generate_pacing_recommendations(self, project: NovelProject,
-                                       pacing_curve: List[Dict[str, Any]]) -> List[str]:
+    def _generate_pacing_recommendations(self, project: NovelProject, pacing_curve: List[Dict[str, Any]]) -> List[str]:
         """生成节奏建议"""
         recommendations = []
 
@@ -348,12 +331,12 @@ class PacingAnalyzer:
                     start = i
             elif start != -1:
                 if i - start >= 3:  # 连续3个或以上
-                    streaks.append((start, i-1))
+                    streaks.append((start, i - 1))
                 start = -1
 
         # 处理结尾
         if start != -1 and len(tensions) - start >= 3:
-            streaks.append((start, len(tensions)-1))
+            streaks.append((start, len(tensions) - 1))
 
         return streaks
 
@@ -383,13 +366,7 @@ class PacingAnalyzer:
 
     def _validate_tension_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
         """验证紧张度分析结果"""
-        defaults = {
-            "tension_score": 5,
-            "confidence": 0.5,
-            "reason": "分析完成",
-            "emotions": [],
-            "key_elements": []
-        }
+        defaults = {"tension_score": 5, "confidence": 0.5, "reason": "分析完成", "emotions": [], "key_elements": []}
 
         for key, default_value in defaults.items():
             if key not in result:
@@ -408,13 +385,7 @@ class PacingAnalyzer:
 
     def _get_default_tension_result(self) -> Dict[str, Any]:
         """获取默认紧张度结果"""
-        return {
-            "tension_score": 5,
-            "confidence": 0.0,
-            "reason": "分析失败，使用默认值",
-            "emotions": [],
-            "key_elements": []
-        }
+        return {"tension_score": 5, "confidence": 0.0, "reason": "分析失败，使用默认值", "emotions": [], "key_elements": []}
 
     def _clean_json_response(self, text: str) -> str:
         """清理LLM响应中的JSON部分"""
@@ -431,6 +402,6 @@ class PacingAnalyzer:
         end = text.rfind("}")
 
         if start != -1 and end != -1 and end > start:
-            return text[start:end+1]
+            return text[start : end + 1]
 
         return text

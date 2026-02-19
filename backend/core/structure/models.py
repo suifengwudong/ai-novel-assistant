@@ -3,32 +3,40 @@
 用于Phase 4: 结构化创作引擎 (Gardener Mode)
 """
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Literal
 from datetime import datetime
 from enum import Enum
+from typing import Dict, List, Literal, Optional
+
 
 class NodeType(Enum):
     """节点类型枚举"""
-    VOLUME = "volume"    # 卷
+
+    VOLUME = "volume"  # 卷
     CHAPTER = "chapter"  # 章
-    SCENE = "scene"      # 场景
+    SCENE = "scene"  # 场景
+
 
 class NodeStatus(Enum):
     """节点状态枚举"""
-    DRAFT = "draft"      # 草稿
+
+    DRAFT = "draft"  # 草稿
     WRITING = "writing"  # 写作中
     FINISHED = "finished"  # 已完成
 
+
 class PacingTemplate(Enum):
     """节奏模板枚举"""
+
     HERO_JOURNEY = "hero_journey"  # 英雄之旅
-    THREE_ACT = "three_act"        # 三幕结构
+    THREE_ACT = "three_act"  # 三幕结构
     SAVE_THE_CAT = "save_the_cat"  # 救猫咪
-    CUSTOM = "custom"              # 自定义
+    CUSTOM = "custom"  # 自定义
+
 
 @dataclass
 class PlotNode:
     """大纲节点 (可以是卷、章、或具体场景)"""
+
     id: str
     title: str
     description: str  # 预设的大纲内容
@@ -37,7 +45,7 @@ class PlotNode:
     # 状态追踪
     status: NodeStatus = NodeStatus.DRAFT
     actual_content_summary: str = ""  # AI生成的正文实际总结
-    deviation_score: float = 0.0      # 偏离度 (0-1)
+    deviation_score: float = 0.0  # 偏离度 (0-1)
 
     # 关联信息
     characters: List[str] = field(default_factory=list)
@@ -63,9 +71,11 @@ class PlotNode:
         if self.deviation_score < 0 or self.deviation_score > 1:
             raise ValueError("偏离度必须在0-1之间")
 
+
 @dataclass
 class PlotLoop:
     """伏笔/悬念对象"""
+
     id: str
     description: str  # 伏笔描述
     created_in_node: str  # 在哪个节点中创建
@@ -76,17 +86,21 @@ class PlotLoop:
     created_at: datetime = field(default_factory=datetime.now)
     resolved_at: Optional[datetime] = None
 
+
 @dataclass
 class PacingCheckpoint:
     """节奏检查点"""
+
     position: float  # 故事进度 (0-1)
     expected_tension: int  # 预期紧张度 (1-10)
     description: str  # 检查点描述
     template: PacingTemplate
 
+
 @dataclass
 class NovelProject:
     """小说项目"""
+
     id: str
     title: str
     outline_tree: List[PlotNode]  # 树状结构

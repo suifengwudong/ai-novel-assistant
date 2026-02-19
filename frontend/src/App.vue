@@ -82,7 +82,7 @@ import { ref, computed, onMounted, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { darkTheme, lightTheme } from 'naive-ui'
 import {
-  Robot as RobotIcon,
+  Menu as RobotIcon,
   Menu as MenuIcon,
   Sunny as LightIcon,
   Moon as DarkIcon

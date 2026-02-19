@@ -3,9 +3,12 @@
 负责监控正文写作是否偏离预设大纲
 """
 import json
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from loguru import logger
-from core.structure.models import PlotNode, NodeStatus
+
+from core.structure.models import NodeStatus, PlotNode
+
 
 class OutlineGuardian:
     """
@@ -41,7 +44,7 @@ class OutlineGuardian:
                 "deviation_score": 0.0,
                 "reason": "大纲描述为空",
                 "impact_analysis": "无影响",
-                "suggestion": "请完善大纲描述"
+                "suggestion": "请完善大纲描述",
             }
 
         prompt = f"""
@@ -175,7 +178,7 @@ class OutlineGuardian:
         if start_idx == -1:
             return []
 
-        return nodes[start_idx + 1:]
+        return nodes[start_idx + 1 :]
 
     def _generate_content_summary(self, content: str) -> str:
         """生成内容总结（简化版）"""
@@ -199,7 +202,7 @@ class OutlineGuardian:
         end = text.rfind("}")
 
         if start != -1 and end != -1 and end > start:
-            return text[start:end+1]
+            return text[start : end + 1]
 
         return text
 
@@ -213,7 +216,7 @@ class OutlineGuardian:
             "impact_analysis": "无明显影响",
             "suggestion": "继续写作",
             "severity": "low",
-            "recommendation_type": "accept_change"
+            "recommendation_type": "accept_change",
         }
 
         for key, default_value in defaults.items():
@@ -243,5 +246,5 @@ class OutlineGuardian:
             "impact_analysis": "无法评估",
             "suggestion": "请手动检查",
             "severity": "low",
-            "recommendation_type": "accept_change"
+            "recommendation_type": "accept_change",
         }
