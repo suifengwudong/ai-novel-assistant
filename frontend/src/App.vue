@@ -111,6 +111,16 @@ const menuOptions = [
     label: '💬 读者反馈',
     key: 'feedback',
     icon: () => h('span', { style: 'font-size: 18px' }, '💭')
+  },
+  {
+    label: '👤 角色卡片',
+    key: 'characters',
+    icon: () => h('span', { style: 'font-size: 18px' }, '🃏')
+  },
+  {
+    label: '🌳 大纲树',
+    key: 'plot-tree',
+    icon: () => h('span', { style: 'font-size: 18px' }, '📋')
   }
 ]
 
