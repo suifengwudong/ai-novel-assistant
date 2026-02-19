@@ -1,7 +1,9 @@
 """
 Export API routes
 """
+import html
 import io
+import textwrap
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
@@ -12,6 +14,8 @@ from config.settings import settings
 from database.models import Base, NovelProject
 
 router = APIRouter(prefix="/export", tags=["export"])
+
+MAX_LINE_CHARS = 100
 
 engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -63,14 +67,14 @@ def export_pdf(project_id: str):
     c.setFont("Helvetica", 12)
     y = height - 108
     content = project.content or ""
-    for line in content.split("\n"):
-        if y < 72:
-            c.showPage()
-            y = height - 72
-            c.setFont("Helvetica", 12)
-        display = line[:MAX_LINE_CHARS] + ("…" if len(line) > MAX_LINE_CHARS else "")
-        c.drawString(72, y, display)
-        y -= 16
+    for paragraph in content.split("\n"):
+        for line in textwrap.wrap(paragraph, width=MAX_LINE_CHARS) or [""]:
+            if y < 72:
+                c.showPage()
+                y = height - 72
+                c.setFont("Helvetica", 12)
+            c.drawString(72, y, line)
+            y -= 16
     c.save()
     buf.seek(0)
     filename = f"{project.title}.pdf".replace(" ", "_")
@@ -93,7 +97,7 @@ def export_epub(project_id: str):
     book = epub.EpubBook()
     book.set_title(project.title)
     chapter = epub.EpubHtml(title=project.title, file_name="chapter.xhtml", lang="zh")
-    chapter.content = f"<h1>{project.title}</h1><p>{project.content or ''}</p>"
+    chapter.content = f"<h1>{html.escape(project.title)}</h1><p>{html.escape(project.content or '')}</p>"
     book.add_item(chapter)
     book.spine = ["nav", chapter]
     book.add_item(epub.EpubNcx())
