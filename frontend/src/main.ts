@@ -19,6 +19,7 @@ const routes = [
   { path: '/', redirect: '/workspace' },
   { path: '/workspace', component: () => import('./views/Workspace.vue'), meta: { title: '写作工作台' } },
   { path: '/projects', component: () => import('./views/Projects.vue'), meta: { title: '项目管理' } },
+  { path: '/projects/:id/edit', component: () => import('./views/Editor.vue'), meta: { title: '写作编辑器' } },
   { path: '/style', component: () => import('./views/StyleAnalysis.vue'), meta: { title: '风格学习' } },
   { path: '/polish', component: () => import('./views/Polishing.vue'), meta: { title: '智能润色' } },
   { path: '/feedback', component: () => import('./views/Feedback.vue'), meta: { title: '读者反馈' } },
