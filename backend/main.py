@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from api.routes import agent_router, style_router
+from api.routes import agent_router, auth_router, collab_router, export_router, project_router, style_router
 from config.settings import settings
 
 
@@ -60,11 +60,6 @@ app.include_router(style_router, prefix="/api/v1")
 app.include_router(agent_router, prefix="/api/v1")
 
 
-# ========================================
-# 健康检查
-# ========================================
-
-
 @app.get("/health")
 async def health_check():
     """健康检查端点"""
@@ -105,8 +100,10 @@ async def general_exception_handler(request, exc):
 # API 路由挂载
 # ========================================
 
-app.include_router(style_router, prefix="/api/v1")
-app.include_router(agent_router, prefix="/api/v1")
+app.include_router(project_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(export_router, prefix="/api/v1")
+app.include_router(collab_router)
 
 
 # ========================================

@@ -16,7 +16,10 @@ const { message, notification, dialog, loadingBar } = createDiscreteApi([
 
 // 路由配置 — 使用懒加载，按需分包提升首屏速度
 const routes = [
-  { path: '/', redirect: '/style' },
+  { path: '/', redirect: '/projects' },
+  { path: '/projects', component: () => import('./views/Projects.vue'), meta: { title: '项目管理' } },
+  { path: '/login', component: () => import('./views/Login.vue'), meta: { title: '登录' } },
+  { path: '/register', component: () => import('./views/Register.vue'), meta: { title: '注册' } },
   { path: '/style', component: () => import('./views/StyleAnalysis.vue'), meta: { title: '风格学习' } },
   { path: '/polish', component: () => import('./views/Polishing.vue'), meta: { title: '智能润色' } },
   { path: '/feedback', component: () => import('./views/Feedback.vue'), meta: { title: '读者反馈' } },
