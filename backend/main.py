@@ -10,6 +10,7 @@ import uvicorn
 from loguru import logger
 
 from config.settings import settings
+from api.routes import style_router, agent_router
 
 # 应用生命周期管理
 @asynccontextmanager
@@ -97,6 +98,14 @@ async def general_exception_handler(request, exc):
             "detail": str(exc) if settings.ENVIRONMENT == "development" else None
         }
     )
+
+
+# ========================================
+# API 路由挂载
+# ========================================
+
+app.include_router(style_router, prefix="/api/v1")
+app.include_router(agent_router, prefix="/api/v1")
 
 
 # ========================================
