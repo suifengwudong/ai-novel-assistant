@@ -18,9 +18,12 @@ from database.models import Base, User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# Database engine and session are now initialized in main.py
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(bind=engine)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer_scheme = HTTPBearer()
