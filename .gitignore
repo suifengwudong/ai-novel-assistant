@@ -125,8 +125,7 @@ dmypy.json
 
 # IDE
 # VS Code
-.vscode/settings.json
-.vscode/launch.json
+.vscode/
 .github/
 .idea/
 *.swp
