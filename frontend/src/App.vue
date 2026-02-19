@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, h } from 'vue'
+import { ref, computed, onMounted, watch, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { darkTheme, lightTheme } from 'naive-ui'
 import {
@@ -150,11 +150,24 @@ const toggleTheme = () => {
   theme.value = theme.value === lightTheme ? darkTheme : lightTheme
 }
 
+// 根据路由路径更新激活菜单项
+const updateActiveKey = () => {
+  const path = route.path.replace(/^\//, '')
+  // 编辑器路由归属于项目管理
+  if (path.startsWith('projects/')) {
+    activeKey.value = 'projects'
+  } else {
+    activeKey.value = path || 'workspace'
+  }
+}
+
 // 初始化
 onMounted(() => {
-  const currentPath = route.path.replace('/', '') || 'workspace'
-  activeKey.value = currentPath === '' ? 'workspace' : currentPath
+  updateActiveKey()
 })
+
+// 监听路由变化
+watch(() => route.path, updateActiveKey)
 </script>
 
 <style scoped>
