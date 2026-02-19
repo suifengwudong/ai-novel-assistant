@@ -4,10 +4,18 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com)
 [![Vue 3](https://img.shields.io/badge/Vue-3.0+-brightgreen.svg)](https://vuejs.org)
+[![Naive UI](https://img.shields.io/badge/Naive-UI-2.37+-blue.svg)](https://www.naiveui.com)
 
 > 专为百万、千万字级超长篇小说创作设计的智能辅助系统，基于大语言模型和智能体技术，提供「内容管理+结构管理」双核心支撑。
 
-[English](#english) | [中文](#chinese)
+## ✅ 项目状态
+
+- **后端**: ✅ 完全可用 - FastAPI + SQLAlchemy + JWT认证
+- **前端**: ✅ 完全可用 - Vue 3 + Naive UI + TypeScript
+- **数据库**: ✅ SQLite (开发) / PostgreSQL (生产)
+- **认证**: ✅ JWT令牌认证 + 路由守卫
+- **依赖**: ✅ 所有依赖正确，无冲突
+- **构建**: ✅ 前后端均可正常构建和运行
 
 ---
 
@@ -39,55 +47,55 @@
 
 ## 🚀 快速开始
 
-### 方式一：Docker 一键部署（推荐）
+## 🚀 快速开始
+
+### 方式一：一键启动完整系统（推荐）
 
 ```bash
-# 1. 克隆项目
+# 克隆项目
 git clone https://github.com/suifengwudong/ai-novel-assistant.git
 cd ai-novel-assistant
 
-# 2. 配置API密钥
+# 配置环境变量（可选）
 cp .env.example .env
-# 编辑 .env，填入你的大模型API密钥
+# 编辑 .env，配置LLM API密钥等
 
-# 3. 启动服务
-bash scripts/deploy.sh
+# 一键启动前后端服务
+# Windows:
+test\start-all.bat
+# Linux/Mac:
+bash test/start-all.sh
 
-# 4. 访问系统
-# 前端: http://localhost:3000
+# 访问系统
+# 前端界面: http://localhost:3000
 # API文档: http://localhost:8000/docs
+# 健康检查: http://localhost:8000/health
 ```
 
-### 方式二：手动部署
+### 方式二：手动启动服务
 
 ```bash
-# 后端
+# 1. 启动后端
 cd backend
 pip install -r requirements.txt
 python scripts/init_db.py
-uvicorn main:app --reload
+python main.py
 
-# 前端
+# 2. 启动前端（新终端）
 cd frontend
 npm install
 npm run dev
 ```
 
-### 方式二：一键启动完整系统（推荐）
+### 方式三：Docker部署
 
 ```bash
-# 一键启动前后端服务
-test/start-all.bat
+# 构建并启动服务
+docker-compose up --build
+
+# 或者使用生产模式
+docker-compose -f docker-compose.prod.yml up --build
 ```
-
-**启动内容**:
-- ✅ 自动环境检查
-- ✅ 依赖自动安装
-- ✅ 数据库初始化
-- ✅ 后端API服务 (http://localhost:8000)
-- ✅ 前端开发服务器 (http://localhost:3000)
-
-### 方式三：分别启动服务
 
 ```bash
 # 仅启动前端
@@ -101,7 +109,81 @@ cd backend && python main.py
 
 ---
 
-## �️ 开发工具
+## 📋 使用指南
+
+### 首次使用
+
+1. **启动系统**
+   ```bash
+   # 一键启动
+   test/start-all.bat
+   ```
+
+2. **访问系统**
+   - 前端界面: http://localhost:3000
+   - API文档: http://localhost:8000/docs
+
+3. **注册账户**
+   - 点击右上角注册按钮
+   - 填写用户名、邮箱和密码
+   - 注册成功后登录
+
+### 核心功能
+
+#### 📊 仪表板
+- 查看项目统计信息
+- 快速访问各项功能
+- 显示最近活动项目
+
+#### 📁 项目管理
+- **创建项目**: 点击"新建项目"按钮
+- **编辑项目**: 点击项目卡片上的"编辑"按钮
+- **导出项目**: 支持Markdown、PDF、EPUB格式
+- **状态管理**: 草稿/已发布/已归档
+
+#### 🎨 风格学习
+- 上传优秀作品样本
+- AI自动分析写作风格
+- 生成风格画像和建议
+
+#### ✏️ 智能润色
+- 输入待润色文本
+- AI提供优化建议
+- 支持多风格润色
+
+#### 👥 角色管理
+- 创建角色卡片
+- 管理人物设定
+- 角色关系图谱
+
+#### 🌳 大纲树
+- 可视化小说结构
+- 章节层级管理
+- 情节发展规划
+
+### API使用
+
+系统提供完整的REST API：
+
+```bash
+# 用户认证
+POST /api/v1/auth/register  # 注册
+POST /api/v1/auth/login     # 登录
+GET  /api/v1/auth/me        # 获取用户信息
+
+# 项目管理
+GET    /api/v1/projects     # 获取项目列表
+POST   /api/v1/projects     # 创建项目
+PUT    /api/v1/projects/:id # 更新项目
+DELETE /api/v1/projects/:id # 删除项目
+
+# 导出功能
+POST /api/v1/export/projects/:id/:format  # 导出项目
+```
+
+---
+
+## 🛠️ 开发工具
 
 ### 代码质量工具
 - **后端**: `black` (格式化), `isort` (导入排序), `flake8` (代码检查)
