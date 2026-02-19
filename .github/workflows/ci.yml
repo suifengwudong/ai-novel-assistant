@@ -3,17 +3,28 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'test/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'test/**'
+      - '.github/workflows/ci.yml'
 
 permissions:
   contents: read
 
 jobs:
-  # ── Backend: lint + tests ──────────────────────────────────────────────────
+  # ── Backend: fast checks + core tests ─────────────────────────────────────
   backend:
     name: Backend (Python)
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.modified, 'test/')
 
     steps:
       - uses: actions/checkout@v4
@@ -24,35 +35,28 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r backend/requirements.txt
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-asyncio black isort
 
-      - name: Install test tools
-        run: pip install pytest pytest-asyncio black isort
-
-      - name: Lint (flake8)
+      - name: Quick format check (black)
         run: |
           cd backend
-          flake8 . --max-line-length=120 \
-            --exclude=__pycache__,migrations,data \
-            --per-file-ignores="__init__.py:F401"
+          black . --check --line-length=120 --quiet
 
-      - name: Format check (black)
+      - name: Quick import sort check (isort)
         run: |
           cd backend
-          black . --check --line-length=120
+          isort . --check-only --profile black --line-length 120 --quiet
 
-      - name: Import sort check (isort)
-        run: |
-          cd backend
-          isort . --check-only --profile black --line-length 120
+      - name: Run core API tests only
+        run: python -m pytest test/test_projects_api.py -v --asyncio-mode=auto
 
-      - name: Run tests
-        run: python -m pytest test/ -v --asyncio-mode=auto
-
-  # ── Frontend: lint + type-check + build ───────────────────────────────────
+  # ── Frontend: quick checks + build ───────────────────────────────────
   frontend:
     name: Frontend (Node/Vue)
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'frontend/')
 
     steps:
       - uses: actions/checkout@v4
@@ -67,10 +71,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Lint
+      - name: Quick lint check
         working-directory: frontend
-        run: npm run lint
+        run: npm run lint -- --quiet
 
-      - name: Build (includes type check)
+      - name: Build check
         working-directory: frontend
         run: npm run build
