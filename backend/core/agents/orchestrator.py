@@ -29,6 +29,7 @@ class AgentState(TypedDict):
     validation_result: Optional[Dict]  # 校验结果
     metadata: Dict[str, Any]           # 元数据
     messages: Annotated[List[str], operator.add]  # 消息历史
+    existing_content: Optional[str]    # 现有内容（用于续写）
 
 
 class NovelAssistantOrchestrator:
@@ -151,7 +152,8 @@ class NovelAssistantOrchestrator:
                 "locked_settings": kwargs.get("locked_settings", {}),
                 "validation_result": None,
                 "metadata": kwargs,
-                "messages": []
+                "messages": [],
+                "existing_content": kwargs.get("existing_content", None)
             }
         
         if self.workflow:
@@ -197,12 +199,20 @@ class NovelAssistantOrchestrator:
 
 返回JSON格式：
 {{
-    "task_type": "generate/summarize/check/edit/outline",
+    "task_type": "generate/continue/summarize/check/edit/outline",
     "target": "chapter/scene/dialogue/description/character",
     "requirements": ["要求1", "要求2"],
     "style": "风格描述",
     "word_count": 目标字数
 }}
+
+任务类型说明：
+- generate: 生成新内容
+- continue: 续写现有内容（断点续写）
+- summarize: 生成总结
+- check: 校验内容
+- edit: 编辑修改
+- outline: 生成大纲
 """
         
         try:
@@ -239,7 +249,7 @@ class NovelAssistantOrchestrator:
         state["core_knowledge"] = core_knowledge
         
         # 获取相关总结
-        if state["task_type"] == "generate":
+        if state["task_type"] in ["generate", "continue"]:
             # 获取最近3章的总结
             try:
                 recent_summaries = await self.summarizer.db.get_recent_summaries(3)
@@ -257,15 +267,47 @@ class NovelAssistantOrchestrator:
     
     async def _generate_content(self, state: AgentState) -> AgentState:
         """生成内容"""
-        logger.info("Agent: 生成内容")
+        logger.info(f"Agent: 生成内容 (任务类型: {state['task_type']})")
         
         # 构建系统消息
         system_message = """你是一位专业的小说创作助手，擅长生成高质量的小说内容。
 你必须严格遵守核心设定和锁定设定，保持与前文的连贯性。
 生成的内容要符合人物性格，情节合理，文笔流畅。"""
         
-        # 构建用户提示
-        prompt = f"""
+        # 根据任务类型构建不同的用户提示
+        if state["task_type"] == "continue" and state.get("existing_content"):
+            # 续写模式
+            prompt = f"""
+请续写以下小说内容：
+
+【现有内容】（请从此处继续写）
+{state['existing_content']}
+
+【用户需求】
+{state['user_input']}
+
+【核心设定】（必须严格遵守，不可违背）
+{self._format_list(state['core_knowledge'])}
+
+【前文脉络】
+{self._format_dict(state['summaries'])}
+
+【锁定设定】（绝对不可更改）
+{self._format_dict(state['locked_settings'])}
+
+续写要求：
+1. 严格遵守核心设定和锁定设定
+2. 保持与现有内容的连贯性和一致性
+3. 人物行为符合已设定的性格
+4. 情节推进合理，逻辑自洽
+5. 文笔流畅，描写生动
+6. 直接从现有内容末尾开始续写，不要重复已有内容
+
+请继续生成：
+"""
+        else:
+            # 普通生成模式
+            prompt = f"""
 请根据以下信息生成小说内容：
 
 【用户需求】

@@ -7,6 +7,8 @@ import App from './App.vue'
 import StyleAnalysis from './views/StyleAnalysis.vue'
 import Polishing from './views/Polishing.vue'
 import Feedback from './views/Feedback.vue'
+import CharacterCards from './views/CharacterCards.vue'
+import PlotTree from './views/PlotTree.vue'
 
 import './style.css'
 
@@ -22,7 +24,9 @@ const routes = [
   { path: '/', redirect: '/style' },
   { path: '/style', component: StyleAnalysis, meta: { title: '风格学习' } },
   { path: '/polish', component: Polishing, meta: { title: '智能润色' } },
-  { path: '/feedback', component: Feedback, meta: { title: '读者反馈' } }
+  { path: '/feedback', component: Feedback, meta: { title: '读者反馈' } },
+  { path: '/characters', component: CharacterCards, meta: { title: '角色卡片' } },
+  { path: '/plot-tree', component: PlotTree, meta: { title: '大纲树' } },
 ]
 
 const router = createRouter({
