@@ -88,39 +88,37 @@
 
         <!-- 最近项目 -->
         <n-card class="projects-card" title="📂 最近项目" hoverable>
-          <n-spin :show="loadingProjects">
-            <n-empty v-if="recentProjects.length === 0 && !loadingProjects" description="暂无最近项目">
-              <template #icon>
-                <n-icon size="64" color="#cccccc">
-                  <FolderIcon />
+          <n-empty v-if="recentProjects.length === 0" description="暂无最近项目">
+            <template #icon>
+              <n-icon size="64" color="#cccccc">
+                <FolderIcon />
+              </n-icon>
+            </template>
+          </n-empty>
+          <div v-else class="projects-list">
+            <div
+              v-for="project in recentProjects"
+              :key="project.id"
+              class="project-item"
+              @click="openProject(project)"
+            >
+              <div class="project-icon">
+                <n-icon size="32" color="#2080f0">
+                  <DocumentIcon />
                 </n-icon>
-              </template>
-            </n-empty>
-            <div v-else class="projects-list">
-              <div
-                v-for="project in recentProjects"
-                :key="project.id"
-                class="project-item"
-                @click="openProject(project)"
-              >
-                <div class="project-icon">
-                  <n-icon size="32" color="#2080f0">
-                    <DocumentIcon />
-                  </n-icon>
-                </div>
-                <div class="project-info">
-                  <h4>{{ project.title }}</h4>
-                  <p>{{ project.updated_at ? project.updated_at.slice(0, 16).replace('T', ' ') : '-' }}</p>
-                  <small>{{ project.genre || '未分类' }}</small>
-                </div>
-                <div class="project-actions">
-                  <n-button text size="small" @click.stop="openProject(project)">
-                    打开
-                  </n-button>
-                </div>
+              </div>
+              <div class="project-info">
+                <h4>{{ project.title }}</h4>
+                <p>{{ project.lastModified }}</p>
+                <small>{{ project.genre }}</small>
+              </div>
+              <div class="project-actions">
+                <n-button text size="small" @click.stop="openProject(project)">
+                  打开
+                </n-button>
               </div>
             </div>
-          </n-spin>
+          </div>
         </n-card>
       </div>
 
@@ -258,36 +256,13 @@
         </n-card>
       </div>
     </div>
-
-    <!-- 新建项目弹窗 -->
-    <n-modal v-model:show="showCreateModal" preset="card" title="新建小说项目" style="width: 520px;">
-      <n-form :model="createForm" label-placement="left" label-width="80px">
-        <n-form-item label="标题" required>
-          <n-input v-model:value="createForm.title" placeholder="请输入小说标题" />
-        </n-form-item>
-        <n-form-item label="类型">
-          <n-input v-model:value="createForm.genre" placeholder="如：玄幻、言情、科幻" />
-        </n-form-item>
-        <n-form-item label="简介">
-          <n-input v-model:value="createForm.description" type="textarea" :rows="3" placeholder="项目简介（可选）" />
-        </n-form-item>
-      </n-form>
-      <template #action>
-        <n-space justify="end">
-          <n-button @click="showCreateModal = false">取消</n-button>
-          <n-button type="primary" :loading="creating" @click="handleCreateProject">
-            创建并进入编辑器
-          </n-button>
-        </n-space>
-      </template>
-    </n-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMessage } from 'naive-ui'
+import { getProjects, type NovelProject } from '../api/projects'
 import {
   Add as PlusIcon,
   FolderOpenOutline as FolderIcon,
@@ -303,14 +278,11 @@ import {
   BookOutline as BookIcon,
   BulbOutline as LightbulbIcon
 } from '@vicons/ionicons5'
-import { getProjects, createProject, type NovelProject } from '../api/projects'
 
 const router = useRouter()
-const message = useMessage()
 
 // 最近项目数据
 const recentProjects = ref<NovelProject[]>([])
-const loadingProjects = ref(false)
 
 // 写作统计
 const stats = ref({
@@ -319,11 +291,6 @@ const stats = ref({
   writingDays: 0,
   projectCount: 0
 })
-
-// 新建项目弹窗
-const showCreateModal = ref(false)
-const creating = ref(false)
-const createForm = ref({ title: '', description: '', genre: '', status: 'draft' })
 
 // 写作提示
 const writingTips = [
@@ -354,72 +321,61 @@ const nextTip = () => {
   currentTip.value = writingTips[currentTipIndex.value]
 }
 
-// 加载项目和统计数据
-const loadData = async () => {
-  loadingProjects.value = true
-  try {
-    const projects = await getProjects()
-    // 最近5个项目（按更新时间倒序）
-    recentProjects.value = [...projects]
-      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-      .slice(0, 5)
-
-    // 统计
-    const totalWords = projects.reduce((sum, p) => sum + (p.word_count || 0), 0)
-    stats.value = {
-      totalWords,
-      todayWords: 0,
-      writingDays: 0,
-      projectCount: projects.length
-    }
-  } catch {
-    // 后端未启动时静默处理
-  } finally {
-    loadingProjects.value = false
-  }
-}
-
 // 新建项目
 const createNewProject = () => {
-  createForm.value = { title: '', description: '', genre: '', status: 'draft' }
-  showCreateModal.value = true
+  // TODO: 实现新建项目逻辑
+  console.log('新建小说项目')
 }
 
-const handleCreateProject = async () => {
-  if (!createForm.value.title.trim()) {
-    message.warning('请输入项目标题')
-    return
-  }
-  creating.value = true
-  try {
-    const project = await createProject(createForm.value)
-    showCreateModal.value = false
-    message.success('项目创建成功，即将进入编辑器...')
-    router.push(`/projects/${project.id}/edit`)
-  } catch {
-    message.error('创建项目失败')
-  } finally {
-    creating.value = false
-  }
-}
-
-// 打开最近项目（导航到项目管理页）
+// 打开最近项目
 const openRecentProject = () => {
-  router.push('/projects')
+  // TODO: 实现打开最近项目逻辑
+  console.log('打开最近项目')
 }
 
 // 导入项目
 const importProject = () => {
-  message.info('导入功能即将上线')
+  // TODO: 实现导入项目逻辑
+  console.log('导入项目')
 }
 
-// 打开项目进入编辑器
+// 打开项目
 const openProject = (project: NovelProject) => {
   router.push(`/projects/${project.id}/edit`)
 }
 
-onMounted(() => {
-  loadData()
+onMounted(async () => {
+  try {
+    // 加载最近项目
+    const projects = await getProjects()
+    // 按更新时间排序，取最新的3个
+    recentProjects.value = projects
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+      .slice(0, 3)
+      .map(project => ({
+        ...project,
+        lastModified: new Date(project.updated_at).toLocaleString('zh-CN')
+      }))
+
+    // 计算统计数据
+    const allProjects = projects
+    stats.value.projectCount = allProjects.length
+    stats.value.totalWords = allProjects.reduce((sum, p) => sum + (p.word_count || 0), 0)
+
+    // TODO: 计算今日字数和写作天数（需要后端API支持）
+    stats.value.todayWords = 0
+    stats.value.writingDays = 0
+  } catch (error) {
+    console.error('加载工作台数据失败:', error)
+    // 出错时使用默认数据
+    recentProjects.value = []
+    stats.value = {
+      totalWords: 0,
+      todayWords: 0,
+      writingDays: 0,
+      projectCount: 0
+    }
+  }
 })
 </script>
 
