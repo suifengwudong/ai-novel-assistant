@@ -262,6 +262,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getProjects, type NovelProject } from '../api/projects'
 import {
   Add as PlusIcon,
   FolderOpenOutline as FolderIcon,
@@ -281,33 +282,14 @@ import {
 const router = useRouter()
 
 // 最近项目数据
-const recentProjects = ref([
-  {
-    id: 1,
-    title: '《星际穿越》',
-    lastModified: '2024-01-15 14:30',
-    genre: '科幻小说'
-  },
-  {
-    id: 2,
-    title: '《时光倒流》',
-    lastModified: '2024-01-14 09:15',
-    genre: '奇幻小说'
-  },
-  {
-    id: 3,
-    title: '《都市传说》',
-    lastModified: '2024-01-13 16:45',
-    genre: '都市小说'
-  }
-])
+const recentProjects = ref<NovelProject[]>([])
 
 // 写作统计
 const stats = ref({
-  totalWords: 125430,
-  todayWords: 2150,
-  writingDays: 45,
-  projectCount: 3
+  totalWords: 0,
+  todayWords: 0,
+  writingDays: 0,
+  projectCount: 0
 })
 
 // 写作提示
@@ -358,13 +340,42 @@ const importProject = () => {
 }
 
 // 打开项目
-const openProject = (project: any) => {
-  // TODO: 实现打开项目逻辑
-  console.log('打开项目:', project)
+const openProject = (project: NovelProject) => {
+  router.push(`/projects/${project.id}/edit`)
 }
 
-onMounted(() => {
-  // TODO: 加载最近项目和统计数据
+onMounted(async () => {
+  try {
+    // 加载最近项目
+    const projects = await getProjects()
+    // 按更新时间排序，取最新的3个
+    recentProjects.value = projects
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+      .slice(0, 3)
+      .map(project => ({
+        ...project,
+        lastModified: new Date(project.updated_at).toLocaleString('zh-CN')
+      }))
+
+    // 计算统计数据
+    const allProjects = projects
+    stats.value.projectCount = allProjects.length
+    stats.value.totalWords = allProjects.reduce((sum, p) => sum + (p.word_count || 0), 0)
+
+    // TODO: 计算今日字数和写作天数（需要后端API支持）
+    stats.value.todayWords = 0
+    stats.value.writingDays = 0
+  } catch (error) {
+    console.error('加载工作台数据失败:', error)
+    // 出错时使用默认数据
+    recentProjects.value = []
+    stats.value = {
+      totalWords: 0,
+      todayWords: 0,
+      writingDays: 0,
+      projectCount: 0
+    }
+  }
 })
 </script>
 

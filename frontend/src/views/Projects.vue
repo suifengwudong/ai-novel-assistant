@@ -36,7 +36,8 @@
             </n-text>
             <template #action>
               <n-space>
-                <n-button size="small" @click.stop="startEdit(project)">编辑</n-button>
+                <n-button size="small" type="primary" @click.stop="openEditor(project.id)">写作</n-button>
+                <n-button size="small" @click.stop="startEdit(project)">编辑信息</n-button>
                 <n-button size="small" @click.stop="startExport(project)">导出</n-button>
                 <n-button size="small" type="error" @click.stop="handleDelete(project.id)">删除</n-button>
               </n-space>
@@ -133,12 +134,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useMessage } from 'naive-ui'
+import { useRouter } from 'vue-router'
 import {
   getProjects, createProject, updateProject, deleteProject, exportProject,
   type NovelProject, type ProjectCreate, type ProjectUpdate
 } from '../api/projects'
 
 const message = useMessage()
+const router = useRouter()
 const loading = ref(false)
 const saving = ref(false)
 const exporting = ref(false)
@@ -199,6 +202,10 @@ const handleCreate = async () => {
 const startEdit = (p: NovelProject) => {
   editForm.value = { id: p.id, title: p.title, description: p.description, genre: p.genre, status: p.status }
   showEdit.value = true
+}
+
+const openEditor = (id: string) => {
+  router.push(`/projects/${id}/edit`)
 }
 
 const handleUpdate = async () => {
